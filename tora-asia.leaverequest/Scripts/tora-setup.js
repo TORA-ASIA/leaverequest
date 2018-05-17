@@ -120,8 +120,6 @@
     	FoundWorkflowID:0,
     	ActivateFeatureID:0,
     	WorkingDaysID:0,
-    	WorkTypeID:0,
-    	WorkType:"ปัดเศษทิ้ง",
     	WorkingDays:[],
     	OfficerInfo:[],
     	OfficerHR:[],
@@ -139,7 +137,6 @@
 		    			
 		    			var curuserYear = curofficer.OfficerYear;
 		    			var curuserQuata = curofficer.OfficerQuata;
-		    			var officerworktype = ToraAsiaLeaveRequestInfo.Services.WorkType;
 		    		
 		    			var startworkdate = moment(startworkdatestr );
 		    			var circlestr = ToraAsiaLeaveRequestInfo.Services.EndCircleDate.format("DD/MM/YYYY");
@@ -167,9 +164,6 @@
 						var myyear = moment().diff(startworkdate, 'y');
 						var mymonth = endC.diff(startworkdate, 'M');
 						
-						if(curuserQuata === null && officerworktype === "ปัดเศษทิ้ง"){
-							myyear = (myyear >0? myyear-1:0);
-						}
 						//console.log(mymonth%12 );
 						
 						
@@ -182,8 +176,7 @@
 									{field:"Title"},
 									{field:"MaxLeaveValue"},
 									{field:"GenderMaxDate"},
-									{field:"ShowHide"},
-									{field:"MinimumYear"}
+									{field:"ShowHide"}
 								],
 								queryText:"<View><Query><OrderBy><FieldRef Name='SortIndex'/></OrderBy></Query></View>"
 							}
@@ -245,7 +238,6 @@
 									{field:"MaxLeaveValue"},
 									{field:"GenderMaxDate"},
 									{field:"ShowHide"},
-									{field:"MinimumYear"},
 									
 								],
 								queryText:"<View><Query><OrderBy><FieldRef Name='SortIndex' Ascending='True'/><FieldRef Name='MinimumYear' Ascending = 'False'/></OrderBy></Query></View>"
@@ -273,48 +265,30 @@
 								//console.log(countleaves);
 								
 								//find all leave user has permission
-								var filter1 = ko.utils.arrayFilter(allleavetype, function(p) {
+							    ko.utils.arrayForEach(allleavetype, function (p) {
+							        var filunique = ko.utils.arrayFilter(myleavearr, function (itm) {
+							            return itm.Title === p.Title
+							        });
 									switch(p.Title){
-										case "ลาบวช":
-										   return (p.MinimumYear <= myyear && usergender  === "Male" && countleaves === 0)
-										case "ลาคลอด":
-										return (p.MinimumYear <= myyear && usergender  === "Female" && countleaves === 0)
-										default:
-											return (p.MinimumYear <= myyear && p.GenderMaxDate === "All")
+									    case "ลาบวช":
+									        if (usergender === "Male" && countleaves === 0 && filunique.length === 0)
+									            myleavearr.push(p);
+									        break;
+									    case "ลาคลอด":
+									        if (usergender === "Female" && filunique.length === 0)
+									            myleavearr.push(p);
+									        break;
+									    case "ลากิจ":
+									    case "ลาป่วย":
+									    case "ลาพักร้อน":
+									    case "อื่นๆ":
+									        if (p.GenderMaxDate === "All" && filunique.length === 0)
+									            myleavearr.push(p);
+									        break;
 									}
 					                
 					            });
 					            
-					            var myrealleave = [];
-								//Loop add officer Leave
-								ko.utils.arrayForEach(filter1, function(item) {
-									var curitem = $.extend({}, item);
-									if(curuserQuata === null && officerworktype === "คำนวณตามสัดส่วน" && curitem.MinimumYear > 0){
-											//console.log(mymonth%12 );
-									    var oldmax = curitem.MaxLeaveValue;
-									    var newmax =  Math.floor(oldmax * ((mymonth%12)/12));
-										curitem.MaxLeaveValue = newmax;
-									}
-									
-							    	if(myrealleave.length === 0 && curitem.MaxLeaveValue > 0){
-							    		myrealleave.push(curitem);
-							    	}
-							    	else{
-							    		var curindex = -1;
-							    		var funiqu = ko.utils.arrayFilter(myrealleave, function(p,index) {
-							    			curindex = index;
-											return p.Title === item.Title && p.MinimumYear < item.MinimumYear 				                
-							            });
-										if(funiqu.length ===0 && curitem.MaxLeaveValue > 0){
-											myrealleave.push(curitem);
-										}
-										else{
-											if(curindex > -1  && curitem.MaxLeaveValue > 0){
-												myrealleave[curindex] = curitem;
-											}
-										}
-							    	}
-							    });
 							    //console.log(filter1 );
 								//console.log(myrealleave);
 								
@@ -322,7 +296,7 @@
 							    var addfieldata = [
 									{
 										Title:"OfficerQuata",
-										Value: JSON.stringify(myrealleave)
+										Value: JSON.stringify(myleavearr)
 									},
 									{
 										Title:"OfficerYear",
@@ -337,7 +311,7 @@
 						   
 					   			// parent.navLinkClick("idapprove");
 							    ko.SaveDatatoList(optioninside ,function(id){   
-							    	curofficer.OfficerQuata  = JSON.stringify(myrealleave);
+							        curofficer.OfficerQuata = JSON.stringify(myleavearr);
 							    	curofficer.OfficerYear = focusyear ;
 							    	rootcallback();
 								});
@@ -348,15 +322,19 @@
 								
 							}
 							
-							getAllleave(function(d){
-								allleavetype  = d.slice();
+							getAllleave(function (d) {
+							    if (typeof d !== "undefined") {
+							        allleavetype = d.slice();
+							    }
 								curruning++;
 								if(curruning  === maxruning ){
 									successLoad();
 								}
 							});
-							getLeavebyGender(function(d){
-								countleaves= d.length;
+							getLeavebyGender(function (d) {
+							    if (typeof d !== "undefined") {
+							        countleaves = d.length;
+							    }
 								curruning++;
 								if(curruning  === maxruning ){
 									successLoad();
@@ -1402,21 +1380,21 @@
                                 break;
                             case "PlainText":
                                     //Add Plain Text field to the Field Collection    
-                                var plainTextField = fieldColl.addFieldAsXml('<Field Type="Note" DisplayName="' + option.internalname + '" Name="' + option.internalname + '" Required="' + option.require + '" NumLines="10" RichText="FALSE" AppendOnly="TRUE" />', true, SP.AddFieldOptions.addToDefaultContentType);
+                                var plainTextField = fieldColl.addFieldAsXml('<Field Type="Note" DisplayName="' + option.internalname + '" Name="' + option.internalname + '" Required="' + option.require + '" NumLines="30" RichText="FALSE" AppendOnly="TRUE" />', true, SP.AddFieldOptions.addToDefaultContentType);
                                    // plainTextField.set_description("This is a Plain multi line field");
                                     plainTextField.set_title(option.title);
                                     plainTextField.update();
                                     break;
                             case "RichText":
                                 //Add Rich Text field to the Field Collection    
-                                var richTextField = fieldColl.addFieldAsXml('<Field Type="Note" DisplayName="' + option.internalname + '" Name="' + option.internalname + '" Required="' + option.require + '" NumLines="12" RichText="TRUE" AppendOnly="TRUE" />', true, SP.AddFieldOptions.addToDefaultContentType);
+                                var richTextField = fieldColl.addFieldAsXml('<Field Type="Note" DisplayName="' + option.internalname + '" Name="' + option.internalname + '" Required="' + option.require + '" NumLines="30" RichText="TRUE" AppendOnly="TRUE" />', true, SP.AddFieldOptions.addToDefaultContentType);
                                 //richTextField.set_description("This is a Rich Text multi line field");
                                 richTextField.set_title(option.title);
                                 richTextField.update();
                                 break;
                             case "EnhancedText":
                                 //Add Enhanced Text field to the Field Collection    
-                                var enhancedTextField = fieldColl.addFieldAsXml('<Field Type="Note" DisplayName="' + option.internalname + '" Name="' + option.internalname + '" Required="' + option.require + '" NumLines="8" RestrictedMode="TRUE" RichText="TRUE" RichTextMode="FullHtml" AppendOnly="TRUE" />', true, SP.AddFieldOptions.addToDefaultContentType);
+                                var enhancedTextField = fieldColl.addFieldAsXml('<Field Type="Note" DisplayName="' + option.internalname + '" Name="' + option.internalname + '" Required="' + option.require + '" NumLines="15" RestrictedMode="TRUE" RichText="TRUE" RichTextMode="FullHtml" AppendOnly="TRUE" />', true, SP.AddFieldOptions.addToDefaultContentType);
                                 //enhancedTextField.set_description("This is an Enhanced multi line field");
                                 enhancedTextField.set_title(option.title);
                                 enhancedTextField.update();
@@ -1583,10 +1561,8 @@
                                 break;
                             case "LeaveMaxDate":
                                 setFieldToList(context, fldCollection, { title: "Max Leave Value", internalname: "MaxLeaveValue" }, "Number");
-                                setFieldToList(context, fldCollection, { title: "Sort Index", internalname: "SortIndex" }, "Number");
                                 setFieldToList(context, fldCollection, { title: "Show Hide", internalname: "ShowHide" }, "Boolean");
                                 setFieldToList(context, fldCollection, { title: "Gender", internalname: "GenderMaxDate", arraychoice: new Array("All", "Male", "Female"), defaultvalue: "All" }, "ChoiceDropDown");
-                                setFieldToList(context, fldCollection, { title: "Minimum Year", internalname: "MinimumYear",defaultvalue:"0" }, "Number");
                                 break;
                             case "Officer":
                                 setFieldToList(context, fldCollection, { title: "Officer", internalname: "Officer",require:true }, "User");
@@ -1595,9 +1571,8 @@
                                 setFieldToList(context, fldCollection, { title: "Department", internalname: "OfficerDepartment" }, "Text");
                                 setFieldToList(context, fldCollection, { title: "Start Working", internalname: "OfficerStartWorking",require: true  }, "DateOnly");
                                 setFieldToList(context, fldCollection, { title: "Manager", internalname: "OfficerManager" }, "User");
-								setFieldToList(context, fldCollection, { title: "My Quata", internalname: "OfficerQuata" }, "PlainText");
-								setFieldToList(context, fldCollection, { title: "Stamp Year", internalname: "OfficerYear" }, "Number");
-
+                                setFieldToList(context, fldCollection, { title: "My Quata", internalname: "OfficerQuata" }, "PlainText");
+                                setFieldToList(context, fldCollection, { title: "Stamp Year", internalname: "OfficerYear" }, "Number");
                                 break;
                             case "Options":
                                 setFieldToList(context, fldCollection, { title: "Details", internalname: "Details" }, "Text");
@@ -1605,7 +1580,6 @@
                             case "Holidays":
                                 setFieldToList(context, fldCollection, { title: "HolidayDate", internalname: "HolidayDate" }, "DateOnly");
                                 break;
-
                             case "RequestForm":
                                 setFieldToList(context, fldCollection, { title: "Position", internalname: "OfficerPosition" }, "Text");
                                 setFieldToList(context, fldCollection, { title: "Unit", internalname: "OfficerUnit" }, "Text");
@@ -1670,7 +1644,6 @@
 
                                 listitem1.set_item('Title', 'ลากิจ');
                                 listitem1.set_item('MaxLeaveValue', 6);
-                                listitem1.set_item('SortIndex', 1);
                                 listitem1.set_item('ShowHide', true);
 
                                 listitem1.update();
@@ -1679,26 +1652,15 @@
 
                                 listitem2.set_item('Title', 'ลาป่วย');
                                 listitem2.set_item('MaxLeaveValue', 30);
-                                listitem2.set_item('SortIndex', 2);
                                 listitem2.set_item('ShowHide', true);
 
                                 listitem2.update();
-                                //อื่นๆ
-                                var listitem3 = list.addItem(itemCreateInfo );
-
-                                listitem3.set_item('Title', 'อื่นๆ');
-                                listitem3.set_item('MaxLeaveValue', 90);
-                                listitem3.set_item('SortIndex',4);
-                                listitem3.set_item('ShowHide', false);
-
-                                listitem3.update();
                                 
                                 //ลาพักร้อน
                                 var listitem4 = list.addItem(itemCreateInfo );
 
                                 listitem4.set_item('Title', 'ลาพักร้อน');
                                 listitem4.set_item('MaxLeaveValue', 6);
-                                listitem4.set_item('SortIndex', 3);
                                 listitem4.set_item('ShowHide', true);
 
                                 listitem4.update();
@@ -1708,7 +1670,6 @@
 
                                 listitem5 .set_item('Title', 'ลาบวช');
                                 listitem5 .set_item('MaxLeaveValue', 15);
-                                listitem5 .set_item('SortIndex', 5);
                                 listitem5 .set_item('ShowHide', false);
                                 listitem5 .set_item('GenderMaxDate', "Male");
 
@@ -1719,13 +1680,20 @@
 
                                 listitem6 .set_item('Title', 'ลาคลอด');
                                 listitem6 .set_item('MaxLeaveValue', 90);
-                                listitem6 .set_item('SortIndex', 6);
                                 listitem6 .set_item('ShowHide', false);
                                 listitem6 .set_item('GenderMaxDate', "Female");
 
 
-                                listitem6 .update();
+                                listitem6.update();
 
+                               //อื่นๆ
+                                var listitem3 = list.addItem(itemCreateInfo);
+
+                                listitem3.set_item('Title', 'อื่นๆ');
+                                listitem3.set_item('MaxLeaveValue', 90);
+                                listitem3.set_item('ShowHide', false);
+
+                                listitem3.update();
                                 break;
                             //case "Options":
                             //    break;
@@ -1742,7 +1710,69 @@
                         // Return the Deferred's Promise object
                         return deferred.promise();
                     }
-                    
+                    var addContenTypeToList = function (_key, pdata) {
+                        // Create a new Deferred object
+                        var deferred = $.Deferred();
+                        //get rootweb  
+                        var rootWeb = context.get_site().get_rootWeb();
+                        //Get all content types from root web site  
+                        var allContentTypeColl = rootWeb.get_contentTypes();
+                        // get list in host web  
+
+                        var contentTypeNameArr = [];
+
+                        switch (_key) {
+                            case "WorkflowTaskList":
+                                contentTypeNameArr = ["Workflow Task (SharePoint 2013)"]
+                                break;
+                                //case "Options":
+                                //    break;
+                        }
+                        context.load(rootWeb);
+                        context.load(allContentTypeColl);
+                        context.executeQueryAsync(function () {
+                            if (contentTypeNameArr.length == 0) {
+                                return deferred.resolve();
+                            }
+                            else {
+                                //var CTypeID;
+                                var list = currentWEB.get_lists().getByTitle(pdata.Title);
+                                //Enable the content type in custom list  
+                                list.set_contentTypesEnabled(true);
+                                list.update();
+                                context.load(list);
+                                var listCollectionCT = list.get_contentTypes();
+                                
+                                //then load the list collection content types  
+                                for (var i = 0; i < contentTypeNameArr.length; i++) {
+                                    var contentTypeName = contentTypeNameArr[i];
+                                    //Get the Content type ID , if we know content type id we dont want to get the id again  
+                                    var contentTypeEnum = allContentTypeColl.getEnumerator();
+                                    while (contentTypeEnum.moveNext()) {
+                                        var currentCT = contentTypeEnum.get_current();
+                                        if (currentCT.get_name() == contentTypeName) {
+                                            //CTypeID = currentCT.get_stringId();
+                                            listCollectionCT.addExistingContentType(currentCT);
+                                            break;
+                                        }
+                                    }
+                                }
+                                context.executeQueryAsync(function () {
+                                    //alert("Sharepoint custom list is created Successfully..")
+                                    return deferred.resolve();
+                                }, function (sender, args) {
+                                    //console.log('Failed to create list. Error:' + args.get_message());
+                                    return deferred.reject('Failed to add content type to list. Error:' + args.get_message());
+                                });
+                            }
+                        }, function (sender, args) {
+                            //console.log('Failed to create list. Error:' + args.get_message());
+                            return deferred.reject('Failed to get content types. Error:' + args.get_message());
+                        });
+
+                        // Return the Deferred's Promise object
+                        return deferred.promise();
+                    }
                     var loadAfterGetUserInfo=function(){
                     		ToraAsiaLeaveRequestInfo.Services.CalulateWorkDay(function(){
                     			callback();
@@ -1753,6 +1783,9 @@
                     var loadGetCreateListSuccess = function(){
                     		var maxstepcheck = 7;
                     		var currentstepcount = 0;
+                            
+                            //Add Contentype
+
 							ToraAsiaLeaveRequestInfo.Services.CheckworkflowMapping(context,currentWEB ).then(function(){
 									currentstepcount++
 									if(currentstepcount === maxstepcheck ){
@@ -1833,12 +1866,6 @@
 									    					ToraAsiaLeaveRequestInfo.Services.WorkingDays = ddata.Details.split(',');
 									    				}
 									    				ToraAsiaLeaveRequestInfo.Services.WorkingDaysID=ddata.ID;	
-									    		break;
-									    		case "WorkType":
-									    				if(ddata.Details !== null && ddata.Details !== ""){
-									    					ToraAsiaLeaveRequestInfo.Services.WorkType= ddata.Details;
-									    				}
-									    				ToraAsiaLeaveRequestInfo.Services.WorkTypeID=ddata.ID;	
 									    		break;
 
 
@@ -1923,17 +1950,44 @@
 		                                curvalue.ID = id2.toString();
                             			curvalue.Url = url2;
 		                                //ToraAsiaLeaveRequestInfo.ListManagement[curkey] = curvalue;
+                            			var countdefault = 0;
+                            			var maxcountdefault = 2;
+                            			addContenTypeToList(curkey, curvalue).then(function () {
+                            			    countdefault++;
+                            			    if (countdefault === maxcountdefault) {
+                            			        currentListCount++;
+                            			        if (currentListCount === maxListCount) {
+                            			            loadGetCreateListSuccess();
+                            			        }
+                            			    }
+                            			    
+                            			}, function (egr3) {
+                            			    console.log(egr3);
+                            			    countdefault++;
+                            			    if (countdefault === maxcountdefault) {
+                            			        currentListCount++;
+                            			        if (currentListCount === maxListCount) {
+                            			            loadGetCreateListSuccess();
+                            			        }
+                            			    }
+                            			});
 		                                createDefaultItemList(curkey,curvalue).then(function () {
 
-			                                currentListCount++;
-			                                if (currentListCount === maxListCount) {
-			                                    loadGetCreateListSuccess();
-			                                }
+		                                    countdefault++;
+		                                    if (countdefault === maxcountdefault) {
+		                                        currentListCount++;
+		                                        if (currentListCount === maxListCount) {
+		                                            loadGetCreateListSuccess();
+		                                        }
+		                                    }
 			                            }, function (egr3) {
 			                                console.log(egr3);
-			                                currentListCount++;
-			                                if (currentListCount === maxListCount) {
-			                                    loadGetCreateListSuccess();
+			                                countdefault++;
+			                                if (countdefault === maxcountdefault) {
+			                                    currentListCount++;
+			                                    if (currentListCount === maxListCount) {
+			                                        loadGetCreateListSuccess();
+			                                    }
 			                                }
 			                            });
 

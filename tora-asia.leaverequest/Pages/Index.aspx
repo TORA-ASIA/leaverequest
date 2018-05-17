@@ -186,13 +186,6 @@
 						</div>
 					</div>
 			</div>
-			<div class="row form-group" data-bind="visible:isOwner">
-				<div class="col-xs-offset-0 col-md-offset-2 col-xs-12 col-sm-10" >
-					<label data-bind="visible:cancelworkflow() === 'true'">Cancel processing</label >
-					<button class="btn btn-danger" data-bind="visible:(leavestatus()==='In Progress' || cancelleavestatus() ==='In Progress') && cancelworkflow() !== 'true' && istaskgenerate(),click:CancelClick.bind($data)">Cancel</button>
-					<button class="btn btn-danger" data-bind="visible:leavestatus()==='Approved'&& cancelleavestatus() !=='In Progress' && cancelleavestatus() !=='Cancelled'  && cancelworkflow() !== 'true' && !isgraterthentoday(),click: ReqquestCancelClick.bind($data)">Request Cancel</button>
-				</div>
-			</div>
 	       	 <div class="row form-group">
 				<div class="col-sm-offset-2 col-xs-offset-0 col-xs-2 control-label">
 					<span>ชื่อ-สกุล</span>
@@ -711,19 +704,6 @@
 				<button class="btn btn-xs btn-info" data-bind="visible:!workingEnable(),click:enableWorkingEdit ">Edit</button>
 				<button class="btn btn-xs btn-info" data-bind="visible:workingEnable(),click:saveNewWorkingDate ">Save</button>
 				<button class="btn btn-xs btn-danger" data-bind="visible:workingEnable(),click:disableWorkingEdit ">Cancel</button>
-			</div>
-		</div>
-		<div class="row form-group">
-			<div class="col-xs-offset-0 col-sm-offset-1 col-xs-12 col-sm-3">
-				<span class="end-circle-title">คำนวณวันทำงาน</span>
-			</div>
-			<div class="col-xs-12 col-sm-4">
-				<select class="form-control form-select" data-bind="options:worktypearr,value: worktype,enable:worktypeEnable"></select>
-			</div>
-			<div class="col-xs-12 col-sm-3">
-				<button class="btn btn-xs btn-info" data-bind="visible:!worktypeEnable(),click:enableWorktype ">Edit</button>
-				<button class="btn btn-xs btn-info" data-bind="visible:worktypeEnable(),click:saveNewWorktype ">Save</button>
-				<button class="btn btn-xs btn-danger" data-bind="visible:worktypeEnable(),click:disableWorktype ">Cancel</button>
 			</div>
 		</div>
         <div class="row form-group" data-bind="foreach:NavLinkArr">

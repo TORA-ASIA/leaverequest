@@ -44,10 +44,15 @@ function LRNewViewModel(parent){
         var workingdday = self.workingdday.slice();
         var notcountarr = ["ลาป่วย","ลากิจ","ลาพักร้อน"];
         if(typeof self.leavetype() !== "undefined"){
-	           	if(notcountarr.indexOf(self.leavetype()[0]) > -1){
-	           	workingdday  = ToraAsiaLeaveRequestInfo.Services.WorkingDays.slice();
-	           	holiday  = ToraAsiaLeaveRequestInfo.Services.HoliDays.slice();
-	        }
+            if (notcountarr.indexOf(self.leavetype()[0]) > -1)
+            {
+                if (ToraAsiaLeaveRequestInfo.Services.WorkingDays.length > 0) {
+                    workingdday = ToraAsiaLeaveRequestInfo.Services.WorkingDays.slice();
+                } else {
+                    workingdday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                }
+                holiday = ToraAsiaLeaveRequestInfo.Services.HoliDays.slice();
+            }
         }
         //console.log( workingdday  );  	
         var calday = 0;

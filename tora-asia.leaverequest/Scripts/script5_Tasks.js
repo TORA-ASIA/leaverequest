@@ -23,7 +23,7 @@
         }
         if (!self.ishrForm()) {
 
-            queryBegin.push(String.format(ko.defaultquery, "BeginsWith", "Title", "Text", "อนุมัติการลา", "", ""));
+            queryBegin.push(String.format(ko.defaultquery, "BeginsWith", "Title", "Text", "แจ้งการขออนุมัติการลา", "", ""));
             queryBegin.push(String.format(ko.defaultquery, "BeginsWith", "Title", "Text", "อนุมัติขอยกเลิกการลา", "", ""));
 
         }

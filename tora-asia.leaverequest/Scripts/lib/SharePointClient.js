@@ -256,7 +256,15 @@ var SharePointClient = SharePointClient || {};
                 case "sp.requestexecutor.js": if (SP.RequestInfo) { return true; } else { return false; }
                     break;
                 case "sp.workflowservices.js": if (SP.WorkflowServices) { return true; } else { return false; }
-                break;
+                    break;
+                case "clientforms.js": if (SP.ClientForms) { return true; } else { return false; }
+                    break;
+                case "autofill.js": if (SP.ClientAutoFill) { return true; } else { return false; }
+                    break;
+                case "clienttemplates.js": if (SP.ClientTemplates) { return true; } else { return false; }
+                    break;
+                case "clientpeoplepicker.js": if (SP.ClientPeoplePicker) { return true; } else { return false; }
+                    break;
                 default: return false;
             }
         };
@@ -612,15 +620,15 @@ var SharePointClient = SharePointClient || {};
 
                     return this;
                 };
-			 var orderByMe = function (orderby) {
+                var orderByMe = function (orderby) {
                     ///<summary>
                     /// This method will override the order by with default ID field sortng order by Descending.
                     ///</summary>
                     /// <returns type="Object">Current class instance</returns>
-                    queryStatement.OrderBy =orderby;
+                    queryStatement.OrderBy = orderby;
                     return this;
                 };
-		
+
                 var rowLimit = function (numberOfRecords) {
                     ///<summary>
                     /// This method will set the row limit.
@@ -638,11 +646,11 @@ var SharePointClient = SharePointClient || {};
                     /// This method will override the order by with default ID field sortng order by Descending.
                     ///</summary>
                     /// <returns type="Object">Current class instance</returns>
-                    queryStatement.FolderServerRelativeUrl=folderurl;
+                    queryStatement.FolderServerRelativeUrl = folderurl;
                     return this;
                 };
 
-			
+
                 var buildCamlQuery = function () {
                     ///<summary>
                     /// This method will build the vewXml.
@@ -730,9 +738,9 @@ var SharePointClient = SharePointClient || {};
                     OverrideOrderByIndex: orderByIndex,
                     OverrideOrderBy: orderBy,
                     OverrideOrderByDesc: orderByDesc,
-                    OverrideOrderByMe: orderByMe ,
+                    OverrideOrderByMe: orderByMe,
                     SetRowLimit: rowLimit,
-                    SetFolderServerRelativeUrl: folderRelativeUrl ,
+                    SetFolderServerRelativeUrl: folderRelativeUrl,
                     BuildQuery: buildCamlQuery,
                     GetQueryViewXml: get_viewXml
                 };
@@ -879,7 +887,7 @@ var SharePointClient = SharePointClient || {};
             /// This method will override the order by with default ID field sortng order by Descending.
             ///</summary>
             /// <returns type="Object">Current class instance</returns>
-            this.queryStatement.OrderBy =orderby;
+            this.queryStatement.OrderBy = orderby;
             return this;
         },
 
@@ -892,13 +900,13 @@ var SharePointClient = SharePointClient || {};
             this.queryStatement.RowLimit = numberOfRecords;
             return this;
         },
-        
-         FolderServerRelativeUrl: function (urlfol) {
+
+        FolderServerRelativeUrl: function (urlfol) {
             ///<summary>
             /// This method will set the row limit.
             ///</summary>
             /// <returns type="Object">Current class instance</returns>
-            this.queryStatement.FolderServerRelativeUrl= urlfol;
+            this.queryStatement.FolderServerRelativeUrl = urlfol;
             return this;
         },
 
@@ -948,7 +956,7 @@ var SharePointClient = SharePointClient || {};
             var orderBy = this.queryStatement.OrderBy;
             if (orderBy) {
                 orderByElement = camlUtility.ConvertToCamlSchema("OrderBy", orderBy);
-			//console.log(orderBy);
+                //console.log(orderBy);
                 //Append to Query object
                 if (queryElement.length === 0) {
                     queryElement += "<Query>";
@@ -963,25 +971,25 @@ var SharePointClient = SharePointClient || {};
                 }
 
             }
-		 //console.log(queryElement );
+            //console.log(queryElement );
             //RowLimit element
             var rowlimit = this.queryStatement.RowLimit;
             if (rowlimit) {
                 rowLimit = camlUtility.ConvertToCamlSchema("RowLimit", rowlimit);
             }
-		 //console.log(queryElement );
+            //console.log(queryElement );
             viewRootElement += queryElement + viewFieldsElement + queryOptionsElement + rowLimit + "</View>";
-		
-		 //console.log(viewRootElement);
+
+            //console.log(viewRootElement);
             this.set_viewXml(viewRootElement);
-		 
-		  //Query element if exists
+
+            //Query element if exists
             var rootfolder = this.queryStatement.FolderServerRelativeUrl;
-            if (rootfolder ) {
-                this.set_folderServerRelativeUrl(rootfolder );   
+            if (rootfolder) {
+                this.set_folderServerRelativeUrl(rootfolder);
             }
-	
-	
+
+
             return this;
         },
     };
@@ -1050,7 +1058,8 @@ var SharePointClient = SharePointClient || {};
                 var config = SharePointClient.Configurations;
                 var baseUrl = utility.JSOM.GetBaseUrl();
 
-                var jsFiles = ["SP.Runtime.js", "SP.js","sp.workflowservices.js"];
+                var jsFiles = ["SP.Runtime.js", "SP.js", "sp.workflowservices.js", "clientforms.js"
+                				, "autofill.js", "clientpeoplepicker.js", "clienttemplates.js"];
 
                 if (config.IsCrossDomainRequest) {
                     //load SP.RequestExecutor if not mentioned in js Array
@@ -1743,12 +1752,12 @@ var SharePointClient = SharePointClient || {};
                         } else {
                             itemsCollection = modifiedResult;
                         }
-				    //console.log( modifiedResult.NextHref);
+                        //console.log( modifiedResult.NextHref);
                         if (!modifiedResult.NextHref) {
                             //Set next item collection query string
                             itemsCollection.NextHref = modifiedResult.NextHref;
-					   
-					   
+
+
                             //Convert the final result on basis of response type
                             var finalResult = itemsCollection;
                             if (responseType === SharePointClient.Constants.REST.HTTP.DATA_TYPE.XML) {

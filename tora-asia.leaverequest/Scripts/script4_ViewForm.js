@@ -34,8 +34,6 @@
 	this.requesterId = ko.observable();
 	this.taskreason= ko.observable();
 	this.leavestatus = ko.observable();
-	this.cancelleavestatus = ko.observable();
-	this.cancelworkflow = ko.observable();
 	this.istaskgenerate = ko.observable(false);
 	this.isgraterthentoday = ko.observable(true);
 	this.singleLeaveremail =  ko.computed(function() {
@@ -109,212 +107,8 @@
 					});
 		  } 		
 		 });
-
-		/*var r = confirm("Are you sure to "+type+" ?");
-		if(r){
-					var approvestatus = (type==="Approve"?type+"d":type+"ed");
-					//console.log(approvestatus );
-					var setfieldata = [
-									{
-										Title:"TaskReason",
-										Value: self.taskreason()
-									},	
-									{
-										Title:"PercentComplete",
-										Value: 1
-									},	
-									{
-										Title:"Status",
-										Value: 'Completed'
-									},	
-									{
-										Title:"TaskOutcome",
-										Value: approvestatus 
-									}								
-								];
-					var optioninside = {
-					            listTitle:self.listTasksTitle,
-					            data :setfieldata,
-								itemid :taskid
-				    }
-				   // parent.navLinkClick("idapprove");
-				    ko.SaveDatatoList(optioninside ,function(id){   
-				    		//self.courseID (id);
-			            	//self.saveImagefilesVideo(self.title(),id);
-			            	alert("Save Success");
-			            	parent.navLinkClick(self.backtoform());
-			            	//if(!self.ishrForm()){
-			            	//	parent.navLinkClick(self.backtoform());
-			            	//}
-			            	//else{
-			            	//	 parent.navLinkClick("idhrapprove");
-			            	//}
-					});
-
-			
-		}*/
 	
 	}
-    this.CancelClick = function(data){
-    	swal({
-		  title:"Are you sure to cancel?",
-		 // text: "To create Lists!",
-		  icon: "warning",
-		  buttons: true,
-		  dangerMode: true,
-		})
-		.then((willDelete) => {
-		  if (willDelete) {
-		   // swal("Poof! Your imaginary file has been deleted!", {
-		    //  icon: "success",
-		   // });
-		   		ko.contentDialog.show();
-					var setfieldata = [
-									{
-										Title:"CancelWorkflow",
-										Value: "true"
-									}
-					];
-					var optioninside = {
-					      listTitle:self.listFormTitle ,
-					      data :setfieldata,
-						  itemid :itemId
-				    }
-		   							   
-		   							   
-		   							   // parent.navLinkClick("idapprove");
-				    ko.SaveDatatoList(optioninside ,function(id){   
-				    		//self.courseID (id);
-			            	//self.saveImagefilesVideo(self.title(),id);
-			            	swal("Cancel Success", {
-							      icon: "success",
-							    }).then(() => {
-									ko.contentDialog.hide();
-				            	    parent.navLinkClick(self.backtoform());					
-				           });	
-			            	//if(!self.ishrForm()){
-			            	//	parent.navLinkClick(self.backtoform());
-			            	//}
-			            	//else{
-			            	//	 parent.navLinkClick("idhrapprove");
-			            	//}
-					});
-		  } 		
-		 });
-/*
-		var r = confirm("Are you sure to cancel?");
-		if(r){
-				var setfieldata = [
-									{
-										Title:"CancelWorkflow",
-										Value: "true"
-									}
-					];
-					var optioninside = {
-					      listTitle:self.listFormTitle ,
-					      data :setfieldata,
-						  itemid :itemId
-				    }
-				   // parent.navLinkClick("idapprove");
-				    ko.SaveDatatoList(optioninside ,function(id){   
-
-						alert("Save Success");
-					    parent.navLinkClick(self.backtoform());
-
-						//ToraAsiaLeaveRequestInfo.Services.deleteCancelRequestTask(id).then(function(e){
-						//	alert("Save Success");
-					    //    parent.navLinkClick(self.backtoform());
-		
-						//},function(e){
-						//	console.log(e);
-						//})
-
-
-					});
-
-
-		}
-	*/
-	}
-	this.ReqquestCancelClick= function(data){
-		 swal({
-		  title:"Are you sure to Request Cancel?",
-		 // text: "To create Lists!",
-		  icon: "warning",
-		  buttons: true,
-		  dangerMode: true,
-		})
-		.then((willDelete) => {
-		  if (willDelete) {
-		   // swal("Poof! Your imaginary file has been deleted!", {
-		    //  icon: "success",
-		   // });
-		   		ko.contentDialog.show();
-					var addfieldata = [
-						{
-							Title:"RequestType",
-							Value: "Cancel"
-						},
-						{
-							Title:"CancelLeaveStatus",
-							Value: "In Progress"
-						}														
-					];
-					var optioninside = {
-					            listTitle:self.listFormTitle ,
-					            data :addfieldata,
-								itemid :itemId
-				    }
-		   							   
-		   							   
-		   							   // parent.navLinkClick("idapprove");
-				    ko.SaveDatatoList(optioninside ,function(id){   
-				    		//self.courseID (id);
-			            	//self.saveImagefilesVideo(self.title(),id);
-			            	swal("Request Cancel Success", {
-							      icon: "success",
-							    }).then(() => {
-									ko.contentDialog.hide();
-				            	    parent.navLinkClick(self.backtoform());					
-				           });	
-			            	//if(!self.ishrForm()){
-			            	//	parent.navLinkClick(self.backtoform());
-			            	//}
-			            	//else{
-			            	//	 parent.navLinkClick("idhrapprove");
-			            	//}
-					});
-		  } 		
-		 });
-/*
-		var r = confirm("Are you sure to Request Cancel?");
-		if(r){
-			//console.log(self.errors().length);
-			var addfieldata = [
-						{
-							Title:"RequestType",
-							Value: "Cancel"
-						},
-						{
-							Title:"CancelLeaveStatus",
-							Value: "In Progress"
-						}														
-					];
-					var optioninside = {
-					            listTitle:self.listFormTitle ,
-					            data :addfieldata,
-								itemid :itemId
-				    }
-				    ko.SaveDatatoList(optioninside ,function(id){   
-			            	alert("Request Cancel Success");
-					        parent.navLinkClick(self.backtoform());
-					});
-		}
-
-*/
-	
-	}
-
 	this.queryLeaveForm=function(callback){
 		 var options = {
 				listTitle:self.listFormTitle ,
@@ -329,7 +123,6 @@
 					{field:"Reason"},
 					{field:"PhoneNumber"},
 					{field:"LeaveStatus"},
-					{field:"CancelLeaveStatus"},
 					{field:"OtherLeaveType"},
 					{field:"Requester"},
 					{field:"CancelWorkflow"}									  
@@ -362,8 +155,6 @@
 						self.requesterId(dataitem.Requester.get_lookupId());
 					}
 					self.leavestatus(dataitem.LeaveStatus);
-					self.cancelleavestatus (dataitem.CancelLeaveStatus);
-					self.cancelworkflow(dataitem.CancelWorkflow);
 				}	
 				callback();
 			})
